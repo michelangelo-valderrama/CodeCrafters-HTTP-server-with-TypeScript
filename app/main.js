@@ -1,5 +1,10 @@
 const net = require("node:net")
 
+const HTTP_STATUS = {
+  OK: [200, "OK"],
+  NOT_FOUND: [404, "Not Found"],
+}
+
 function parseRequest(rawRequest) {
   const requestStr = rawRequest.toString()
   const split = requestStr.split(/\r?\n/)
@@ -11,34 +16,27 @@ function parseRequest(rawRequest) {
   }
 }
 
-function createHTTPResponse({ status, headers, body }) {
-  const formattedHeaders = headers.join("\r\n")
-  return `HTTP/1.1 ${status}\r\n${formattedHeaders}\r\n${body}\r\n\r\n`
-}
+const setEmpty = () => "\r\n"
+const setStatus = (status) => `HTTP/1.1 ${status.join(" ")}\r\n`
+const setHeader = (key, value) => `${key}: ${value}\r\n`
+const setBody = (content) =>
+  `${setHeader("Content-Length", content.length)}${setEmpty()}${content}`
 
 const server = net.createServer((socket) => {
   console.log(`[client] connected.`)
   socket.on("data", (data) => {
     const { path } = parseRequest(data)
-
     if (path === "/") {
-      socket.write("HTTP/1.1 200 OK\r\n\r\n")
+      socket.write(setStatus(HTTP_STATUS.OK))
+      socket.write(setEmpty())
     } else if (path.includes("/echo")) {
       const [, body] = path.match(/\/echo\/(.+)/)
-      const headers = [
-        "Content-Type: text/plain",
-        `Content-Length: ${body.length}`,
-      ]
-      socket.write(
-        createHTTPResponse({
-          status: "200 OK",
-          headers,
-          body,
-        }),
-        "utf-8"
-      )
+      socket.write(setStatus(HTTP_STATUS.OK))
+      socket.write(setHeader("Content-Type", "text/plain"))
+      socket.write(setBody(body))
     } else {
-      socket.write("HTTP/1.1 404 Not Found\r\n\r\n")
+      socket.write(setStatus(HTTP_STATUS.NOT_FOUND))
+      socket.write(setEmpty())
     }
 
     socket.end()
