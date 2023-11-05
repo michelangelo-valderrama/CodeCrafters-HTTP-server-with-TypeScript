@@ -1,0 +1,23 @@
+{
+  "name": "http-server-javascript",
+  "version": "1.0.0",
+  "description": "[![progress-banner](https://backend.codecrafters.io/progress/http-server/c20d323f-3352-46b7-a24c-c84d1458c407)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node app/main.ts",
+    "start:dev": "ts-node app/main.ts",
+    "start:dev:dir": "ts-node app/main.ts --directory ./",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.10",
+    "typescript": "^5.2.2",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "node": "^20.9.0"
+  }
+}

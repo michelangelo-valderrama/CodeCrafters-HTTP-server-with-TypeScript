@@ -1,10 +1,10 @@
-const parseRequest = (rawRequest) => {
+export const parseRequest = (rawRequest: Buffer) => {
   const requestStr = rawRequest.toString()
   const splitedReq = requestStr.split(/\r?\n/)
-  const startLine = splitedReq.shift().split(" ")
+  const startLine = splitedReq.shift()!.split(" ")
   const indexEmptyLine = splitedReq.findIndex((_, i, arr) => arr[i] === "")
   const headersArr = splitedReq.splice(0, indexEmptyLine)
-  const headers = {}
+  const headers: { [key: string]: string } = {}
   headersArr.map((v) => {
     const [key, value] = v.split(": ")
     headers[key] = value
@@ -18,5 +18,3 @@ const parseRequest = (rawRequest) => {
     body: body.join(""),
   }
 }
-
-module.exports = { parseRequest }

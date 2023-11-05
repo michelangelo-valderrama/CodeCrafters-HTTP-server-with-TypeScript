@@ -1,16 +1,12 @@
-const net = require("node:net")
-const fs = require("node:fs/promises")
+import { createServer } from "node:net"
+import { readFile, writeFile } from "node:fs/promises"
+import { parseRequest, setBody, setEmpty, setHeader, setStatus } from "./utils"
+import { HTTP_STATUS } from "./consts"
 
-const {
-  parseRequest,
-  setBody,
-  setEmpty,
-  setHeader,
-  setStatus,
-} = require("./utils")
-const { HTTP_STATUS } = require("./consts")
+const PORT = process.env.PORT ?? 4221
+const HOST = "localhost"
 
-const server = net.createServer((socket) => {
+const server = createServer((socket) => {
   console.log(`[client] connected.`)
   socket.on("data", async (data) => {
     const { method, path, headers, body } = parseRequest(data)
@@ -18,21 +14,21 @@ const server = net.createServer((socket) => {
       socket.write(setStatus(HTTP_STATUS.OK))
       socket.write(setEmpty())
     } else if (path.includes("/echo")) {
-      const [, body] = path.match(/\/echo\/(.+)/)
+      const [, body] = path.match(/\/echo\/(.+)/) as string[]
       socket.write(setStatus(HTTP_STATUS.OK))
       socket.write(setHeader("Content-Type", "text/plain"))
       socket.write(setBody(body))
     } else if (path === "/user-agent") {
       socket.write(setStatus(HTTP_STATUS.OK))
       socket.write(setHeader("Content-Type", "text/plain"))
-      socket.write(setBody(headers["User-Agent"]))
+      socket.write(setBody(headers["User-Agent"] ?? ""))
     } else if (path.includes("/files")) {
       const dirPatch = process.argv[3]
-      const [, fileName] = path.match(/\/files\/(.+)/)
+      const [, fileName] = path.match(/\/files\/(.+)/) as string[]
       const filePath = `${dirPatch}/${fileName}`
       if (method === "GET") {
         try {
-          const fileContent = await fs.readFile(filePath, {
+          const fileContent = await readFile(filePath, {
             encoding: "utf-8",
           })
           socket.write(setStatus(HTTP_STATUS.OK))
@@ -46,7 +42,7 @@ const server = net.createServer((socket) => {
       if (method === "POST") {
         try {
           const data = new Uint8Array(Buffer.from(body))
-          await fs.writeFile(filePath, data)
+          await writeFile(filePath, data)
           socket.write(setStatus(HTTP_STATUS.CREATED))
           socket.write(setEmpty())
         } catch (error) {
@@ -65,4 +61,6 @@ const server = net.createServer((socket) => {
   })
 })
 
-server.listen(4221, "localhost")
+server.listen(PORT, () => {
+  console.log(`Server listening on http://${HOST}:${PORT}`)
+})
