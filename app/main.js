@@ -13,7 +13,7 @@ function parseRequest(rawRequest) {
 
 function createHTTPResponse({ status, headers, body }) {
   const formattedHeaders = headers.join("\r\n")
-  return `HTTP/1.1 ${status}\r\n${formattedHeaders}\r\n${body}\r\n`
+  return `HTTP/1.1 ${status}\r\n${formattedHeaders}\r\n${body}\r\n\r\n`
 }
 
 const server = net.createServer((socket) => {
@@ -34,7 +34,8 @@ const server = net.createServer((socket) => {
           status: "200 OK",
           headers,
           body,
-        })
+        }),
+        "utf-8"
       )
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n")
