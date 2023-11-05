@@ -7,12 +7,22 @@ const HTTP_STATUS = {
 
 function parseRequest(rawRequest) {
   const requestStr = rawRequest.toString()
-  const split = requestStr.split(/\r?\n/)
-  const startLine = split[0].split(" ")
+  const splitedReq = requestStr.split(/\r?\n/)
+  const startLine = splitedReq.shift().split(" ")
+  const indexEmptyLine = splitedReq.findIndex(
+    (_, i, arr) => arr[i] === "" && arr[i + 1] === ""
+  )
+  const headersArr = splitedReq.splice(0, indexEmptyLine)
+  const headers = {}
+  headersArr.map((v) => {
+    const [key, value] = v.split(": ")
+    headers[key] = value
+  })
   return {
     method: startLine[0],
     path: startLine[1],
     version: startLine[2],
+    headers,
   }
 }
 
@@ -25,7 +35,8 @@ const setBody = (content) =>
 const server = net.createServer((socket) => {
   console.log(`[client] connected.`)
   socket.on("data", (data) => {
-    const { path } = parseRequest(data)
+    const { path, headers } = parseRequest(data)
+
     if (path === "/") {
       socket.write(setStatus(HTTP_STATUS.OK))
       socket.write(setEmpty())
@@ -34,11 +45,14 @@ const server = net.createServer((socket) => {
       socket.write(setStatus(HTTP_STATUS.OK))
       socket.write(setHeader("Content-Type", "text/plain"))
       socket.write(setBody(body))
+    } else if (path === "/user-agent") {
+      socket.write(setStatus(HTTP_STATUS.OK))
+      socket.write(setHeader("Content-Type", "text/plain"))
+      socket.write(setBody(headers["User-Agent"]))
     } else {
       socket.write(setStatus(HTTP_STATUS.NOT_FOUND))
       socket.write(setEmpty())
     }
-
     socket.end()
     server.close()
   })
