@@ -36,7 +36,7 @@ const server = net.createServer((socket) => {
           encoding: "utf-8",
         })
         socket.write(setStatus(HTTP_STATUS.OK))
-        socket.write(setHeader("Content-Type", "text/plain"))
+        socket.write(setHeader("Content-Type", "application/octet-stream"))
         socket.write(setBody(fileContent))
       } catch (error) {
         socket.write(setStatus(HTTP_STATUS.NOT_FOUND))
