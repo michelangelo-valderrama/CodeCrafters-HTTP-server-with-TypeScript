@@ -54,11 +54,9 @@ const server = net.createServer((socket) => {
       socket.write(setEmpty())
     }
     socket.end()
-    server.close()
   })
   socket.on("close", () => {
     socket.end()
-    server.close()
   })
 })
 
