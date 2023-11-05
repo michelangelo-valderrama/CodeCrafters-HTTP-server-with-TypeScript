@@ -11,15 +11,35 @@ function parseRequest(rawRequest) {
   }
 }
 
+function createHTTPResponse({ status, headers, body }) {
+  const formattedHeaders = headers.join("\r\n")
+  return `HTTP/1.1 ${status}\r\n${formattedHeaders}\r\n${body}\r\n`
+}
+
 const server = net.createServer((socket) => {
   console.log(`[client] connected.`)
   socket.on("data", (data) => {
     const { path } = parseRequest(data)
+
     if (path === "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n")
+    } else if (path.includes("/echo")) {
+      const [, body] = path.match(/\/echo\/(.+)/)
+      const headers = [
+        "Content-Type: text/plain",
+        `Content-Length: ${body.length}`,
+      ]
+      socket.write(
+        createHTTPResponse({
+          status: "200 OK",
+          headers,
+          body,
+        })
+      )
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n")
     }
+
     socket.end()
     server.close()
   })
