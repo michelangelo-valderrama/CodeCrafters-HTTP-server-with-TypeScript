@@ -1,5 +1,7 @@
 import { HttpStatus } from "../consts"
 
+export type Header = { [key: string]: string }
+
 export const setEmpty = () => "\r\n"
 export const setStatus = (status: HttpStatus) =>
   `HTTP/1.1 ${status.join(" ")}\r\n`

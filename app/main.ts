@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises"
 import { parseRequest, setBody, setEmpty, setHeader, setStatus } from "./utils"
 import { HTTP_STATUS } from "./consts"
 
-const PORT = process.env.PORT ?? 4221
+const PORT = process.env.PORT ?? 3000
 const HOST = "localhost"
 
 const server = createServer((socket) => {

@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node app/main.ts",
+    "start:dir": "ts-node app/main.ts --directory ./files",
     "start:dev": "ts-node app/main.ts",
-    "start:dev:dir": "ts-node app/main.ts --directory ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
